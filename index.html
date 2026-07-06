@@ -4,18 +4,40 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
     <title>Goby.pics — AI Passport Photos</title>
     <meta
       name="description"
       content="Create passport-ready photos in your browser with on-device AI. Private, instant, print-ready."
     />
+
+    <!-- Open Graph / Twitter -->
+    <meta property="og:title" content="Goby.pics — AI Passport Photos" />
+    <meta
+      property="og:description"
+      content="Create passport-ready photos in your browser with on-device AI. Private, instant, print-ready."
+    />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Goby.pics — AI Passport Photos" />
+    <meta
+      name="twitter:description"
+      content="Create passport-ready photos in your browser with on-device AI. Private, instant, print-ready."
+    />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    />
+
+    <!-- ONNX Runtime Web (used by src/gobyy/onnxHelper.ts) -->
+    <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.19.0/dist/ort.min.js"></script>
   </head>
   <body>
     <div id="root"></div>
-    <!--
-      This TanStack Start app renders via SSR (see src/server.ts and src/router.tsx).
-      This index.html exists so static hosts / Vercel auto-detection can find an entry.
-    -->
-    <script type="module" src="/src/start.ts"></script>
+    <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
