@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import * as THREE from 'three';
-import { EditorState, PRESET_SIZES, ModelProgress } from './types';
+import { EditorState, PRESET_SIZES } from './types';
 import { loadModels, removeBackground } from './onnxHelper';
 import EditorZone from './EditorZone';
 import PrintSheetZone from './PrintSheetZone';
