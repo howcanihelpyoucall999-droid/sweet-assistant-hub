@@ -141,10 +141,17 @@ function CrystalBehindText() {
 /* -------------------------------------------------------------------------- */
 /* Friendly progress messages (no technical wording)                          */
 /* -------------------------------------------------------------------------- */
-const FRIENDLY_MESSAGES = [
+const INIT_MESSAGES = [
   'Preparing your workspace...',
+  'Setting everything up...',
+  'Warming up the studio...',
+  'Almost ready...',
+];
+
+const PROCESS_MESSAGES = [
   'Analyzing your image...',
-  'Optimizing your photo...',
+  'Enhancing your photo...',
+  'Optimizing facial alignment...',
   'Creating your passport photo...',
   'Finalizing your result...',
 ];
@@ -153,33 +160,46 @@ const FRIENDLY_MESSAGES = [
 /* Dedicated processing page — smooth 0→100, always advancing, premium look   */
 /* -------------------------------------------------------------------------- */
 function ProcessingPage({
+  mode,
+  target,
   done,
   error,
   onRetry,
 }: {
+  mode: 'init' | 'process';
+  target: number; // 0..0.98 — where the bar should be heading right now
   done: boolean;
   error: string | null;
   onRetry: () => void;
 }) {
   const [progress, setProgress] = useState(0);
   const doneRef = useRef(done);
+  const targetRef = useRef(target);
   doneRef.current = done;
+  targetRef.current = target;
+
+  const messages = mode === 'init' ? INIT_MESSAGES : PROCESS_MESSAGES;
 
   useEffect(() => {
     let raf = 0;
-    const start = performance.now();
-    const EST = 4500;
-    const tick = () => {
+    let last = performance.now();
+    const tick = (now: number) => {
+      const dt = Math.min(64, now - last);
+      last = now;
       setProgress((prev) => {
         if (doneRef.current) {
-          const next = prev + Math.max(1.8, (100 - prev) * 0.22);
+          // Snap smoothly to 100
+          const next = prev + Math.max(0.6, (100 - prev) * 0.18) * (dt / 16);
           return next >= 100 ? 100 : next;
         }
-        const elapsed = performance.now() - start;
-        const t = Math.min(1, elapsed / EST);
-        const eased = 1 - Math.pow(1 - t, 2.4);
-        const target = eased * 95;
-        return prev < target ? prev + (target - prev) * 0.16 : Math.min(95, prev + 0.05);
+        const tgt = Math.min(98, targetRef.current * 100);
+        // Ease toward target, but always creep forward so it never freezes.
+        const gap = tgt - prev;
+        const ease = gap > 0 ? gap * 0.045 * (dt / 16) : 0;
+        // Minimum forward drift: ~1.2% per second while below 96
+        const drift = prev < 96 ? 0.02 * (dt / 16) : 0;
+        const next = prev + Math.max(drift, ease);
+        return next > 98 ? 98 : next;
       });
       raf = requestAnimationFrame(tick);
     };
@@ -189,8 +209,8 @@ function ProcessingPage({
 
   const pct = Math.min(100, Math.round(progress));
   const msgIdx = Math.min(
-    FRIENDLY_MESSAGES.length - 1,
-    Math.floor((pct / 100) * FRIENDLY_MESSAGES.length),
+    messages.length - 1,
+    Math.floor((pct / 100) * messages.length),
   );
 
   return (
@@ -207,7 +227,7 @@ function ProcessingPage({
         </div>
 
         <h3 className="relative text-2xl md:text-3xl font-black tracking-tight bg-gradient-to-r from-white via-[#e6d9ff] to-[#beaaff] bg-clip-text text-transparent min-h-[2.2em]">
-          {FRIENDLY_MESSAGES[msgIdx]}
+          {messages[msgIdx]}
         </h3>
         <p className="relative mt-3 text-sm text-white/60 font-medium">
           Sit back — this only takes a moment.
@@ -227,7 +247,7 @@ function ProcessingPage({
         </div>
 
         <div className="relative mt-8 flex justify-center gap-2">
-          {FRIENDLY_MESSAGES.map((_, i) => (
+          {messages.map((_, i) => (
             <div
               key={i}
               className={`h-1.5 rounded-full transition-all duration-500 ${
@@ -255,6 +275,7 @@ function ProcessingPage({
     </div>
   );
 }
+
 
 /* -------------------------------------------------------------------------- */
 /* Upload panel                                                               */
