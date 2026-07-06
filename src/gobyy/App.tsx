@@ -474,10 +474,13 @@ export default function App() {
   const [processedCanvas, setProcessedCanvas] = useState<HTMLCanvasElement | null>(null);
   const [croppedImageSrc, setCroppedImageSrc] = useState<string | null>(null);
 
-  const [modelsLoaded, setModelsLoaded] = useState(false);
-  const [, setModelProgress] = useState<Record<string, ModelProgress>>({});
+  const [modelsLoaded, setModelsLoaded] = useState(() => {
+    try { return localStorage.getItem('goby-initialized') === '1'; } catch { return false; }
+  });
   const [processError, setProcessError] = useState<string | null>(null);
   const [processingDone, setProcessingDone] = useState(false);
+  const [procMode, setProcMode] = useState<'init' | 'process'>('process');
+  const [procTarget, setProcTarget] = useState(0);
 
   const [editorState, setEditorState] = useState<EditorState>(INITIAL_EDITOR_STATE);
 
@@ -485,13 +488,50 @@ export default function App() {
     setSelectedImageSrc(imageSrc);
     setProcessError(null);
     setProcessingDone(false);
+    setProcTarget(0);
+    const firstTime = !modelsLoaded;
+    setProcMode(firstTime ? 'init' : 'process');
     setActiveStep('processing');
 
+    // Gentle stage timer so the bar keeps advancing even when a stage stalls.
+    let stageTimer: number | undefined;
+    const scheduleStages = (stages: number[], perStageMs: number) => {
+      let i = 0;
+      const step = () => {
+        if (i < stages.length) {
+          setProcTarget(stages[i]);
+          i++;
+          stageTimer = window.setTimeout(step, perStageMs);
+        }
+      };
+      step();
+    };
+
     try {
-      if (!modelsLoaded) {
-        await loadModels((p) => setModelProgress(p));
+      if (firstTime) {
+        // Drive target from real model-download bytes across all files.
+        await loadModels((p) => {
+          const entries = Object.values(p);
+          if (!entries.length) return;
+          let loaded = 0, total = 0;
+          for (const e of entries) {
+            loaded += e.loaded || 0;
+            total += e.total || 0;
+          }
+          const frac = total > 0 ? loaded / total : 0;
+          // Init phase occupies 0..0.85 of the bar
+          setProcTarget(Math.min(0.85, 0.05 + frac * 0.8));
+        });
         setModelsLoaded(true);
+        try { localStorage.setItem('goby-initialized', '1'); } catch {}
+        // Transition into processing phase visually
+        setProcTarget(0.9);
+        setProcMode('process');
+        setProcTarget(0.15);
       }
+
+      // Processing stages (used every generation)
+      scheduleStages([0.25, 0.45, 0.65, 0.82, 0.92], 900);
 
       const img = new Image();
       img.crossOrigin = 'anonymous';
@@ -512,6 +552,7 @@ export default function App() {
         processed.getContext('2d')!.drawImage(img, 0, 0);
       }
 
+      if (stageTimer) clearTimeout(stageTimer);
       setProcessedCanvas(processed);
       setProcessingDone(true);
       // Let the progress bar snap to 100 briefly, then transition.
@@ -520,9 +561,11 @@ export default function App() {
         setTimeout(() => document.getElementById('auto-align-btn')?.click(), 250);
       }, 550);
     } catch (err: any) {
+      if (stageTimer) clearTimeout(stageTimer);
       setProcessError(err?.message || 'Something went wrong. Please try another photo.');
     }
   };
+
 
 
   const handleReset = () => {
