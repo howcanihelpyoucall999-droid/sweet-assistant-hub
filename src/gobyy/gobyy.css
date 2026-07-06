@@ -1,0 +1,289 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+/* ============================================================
+   OBSIDIAN CRYSTAL — dark purple theme override
+   Scoped to #main-app so nothing else in the project changes.
+   ============================================================ */
+
+html, body {
+  background: #000 !important;
+}
+
+/* Ambient radial glow behind the crystal */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 40%, rgba(124, 92, 255, 0.18), transparent 70%),
+    radial-gradient(ellipse 60% 40% at 20% 90%, rgba(139, 92, 246, 0.10), transparent 70%),
+    radial-gradient(ellipse 50% 40% at 90% 10%, rgba(190, 170, 255, 0.08), transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+#main-app {
+  position: relative;
+  z-index: 10;
+  background: transparent !important;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* --- Surfaces: turn every white/slate card into a glass panel --- */
+#main-app .bg-white,
+#main-app .bg-slate-50,
+#main-app .bg-slate-100,
+#main-app .bg-white\/90,
+#main-app .bg-white\/80 {
+  background-color: rgba(20, 8, 40, 0.55) !important;
+  backdrop-filter: blur(20px) saturate(140%);
+  border-color: rgba(124, 92, 255, 0.18) !important;
+}
+
+#main-app .bg-slate-50\/30,
+#main-app .bg-slate-50\/40,
+#main-app .bg-slate-50\/60,
+#main-app .bg-slate-150 {
+  background-color: rgba(20, 8, 40, 0.35) !important;
+}
+
+/* Header uses bg-white — keep glass but darker */
+#main-app #main-header {
+  background-color: rgba(10, 5, 20, 0.7) !important;
+  border-bottom-color: rgba(124, 92, 255, 0.2) !important;
+  box-shadow: 0 1px 0 rgba(124, 92, 255, 0.1),
+              0 8px 32px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Footer */
+#main-app footer {
+  background-color: rgba(10, 5, 20, 0.5) !important;
+  border-top-color: rgba(124, 92, 255, 0.15) !important;
+  color: rgba(255, 255, 255, 0.5) !important;
+}
+
+/* Hero gradient card */
+#main-app .from-white,
+#main-app .via-orange-50\/20,
+#main-app .to-orange-50\/10 {
+  --tw-gradient-from: rgba(20, 8, 40, 0.7) !important;
+  --tw-gradient-via: rgba(30, 15, 60, 0.6) !important;
+  --tw-gradient-to: rgba(15, 5, 35, 0.55) !important;
+}
+
+/* --- Text colors: whites, slates → light on dark --- */
+#main-app .text-slate-800,
+#main-app .text-slate-900,
+#main-app .text-slate-700,
+#main-app .text-orange-950 {
+  color: rgba(255, 255, 255, 0.95) !important;
+}
+#main-app .text-slate-600,
+#main-app .text-slate-500 {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+#main-app .text-slate-400,
+#main-app .text-slate-450,
+#main-app .text-slate-350 {
+  color: rgba(190, 170, 255, 0.55) !important;
+}
+
+/* --- Orange accent → violet accent --- */
+#main-app .text-orange-500,
+#main-app .text-orange-600,
+#main-app .text-orange-700 {
+  color: #beaaff !important;
+}
+#main-app .text-orange-400 {
+  color: #a48bff !important;
+}
+
+#main-app .bg-orange-50,
+#main-app .bg-orange-50\/30,
+#main-app .bg-orange-50\/20,
+#main-app .bg-orange-50\/35,
+#main-app .bg-orange-50\/95,
+#main-app .bg-orange-100,
+#main-app .bg-orange-100\/30 {
+  background-color: rgba(124, 92, 255, 0.15) !important;
+}
+
+#main-app .bg-orange-500,
+#main-app .bg-orange-600,
+#main-app .bg-orange-500\/10,
+#main-app .bg-orange-500\/15 {
+  background-color: rgba(124, 92, 255, 0.25) !important;
+}
+
+/* Primary gradient buttons (orange→amber) → violet→lilac */
+#main-app .from-orange-500,
+#main-app .from-orange-600 {
+  --tw-gradient-from: #7c5cff !important;
+}
+#main-app .to-amber-500,
+#main-app .to-amber-600,
+#main-app .to-orange-600 {
+  --tw-gradient-to: #a78bfa !important;
+}
+#main-app .via-amber-500 {
+  --tw-gradient-via: #8b5cf6 !important;
+}
+#main-app .hover\:from-orange-600:hover {
+  --tw-gradient-from: #8b5cf6 !important;
+}
+#main-app .hover\:to-amber-600:hover {
+  --tw-gradient-to: #beaaff !important;
+}
+
+/* Borders: slate + orange → violet-tinted */
+#main-app .border-slate-100,
+#main-app .border-slate-150,
+#main-app .border-slate-200,
+#main-app .border-slate-200\/50,
+#main-app .border-slate-200\/60,
+#main-app .border-slate-200\/80,
+#main-app .border-slate-300,
+#main-app .border-slate-350 {
+  border-color: rgba(124, 92, 255, 0.18) !important;
+}
+#main-app .border-orange-100,
+#main-app .border-orange-100\/60,
+#main-app .border-orange-200,
+#main-app .border-orange-200\/60,
+#main-app .border-orange-300,
+#main-app .border-orange-500 {
+  border-color: rgba(190, 170, 255, 0.45) !important;
+}
+
+/* Rings & shadows glow violet */
+#main-app .ring-slate-200\/80,
+#main-app .ring-orange-500\/20 {
+  --tw-ring-color: rgba(124, 92, 255, 0.35) !important;
+}
+#main-app .shadow-orange-500\/5,
+#main-app .shadow-orange-500\/10,
+#main-app .shadow-orange-500\/20,
+#main-app .shadow-orange-100,
+#main-app .shadow-sm,
+#main-app .shadow-md,
+#main-app .shadow-lg,
+#main-app .shadow-xl,
+#main-app .shadow-2xl {
+  --tw-shadow-color: rgba(124, 92, 255, 0.25) !important;
+  --tw-shadow: 0 10px 40px -10px rgba(124, 92, 255, 0.25) !important;
+  box-shadow: 0 10px 40px -10px rgba(124, 92, 255, 0.25),
+              0 0 0 1px rgba(124, 92, 255, 0.08) inset !important;
+}
+
+/* Brand logo square */
+#main-app #brand-logo {
+  background: linear-gradient(135deg, #7c5cff, #a78bfa) !important;
+  box-shadow: 0 0 20px rgba(124, 92, 255, 0.5) !important;
+}
+
+/* Brand title accent word */
+#main-app h1 .text-orange-600 {
+  background: linear-gradient(135deg, #beaaff, #7c5cff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent !important;
+}
+
+/* Step indicator active state */
+#main-app .bg-orange-600 {
+  background-color: #7c5cff !important;
+  box-shadow: 0 0 12px rgba(124, 92, 255, 0.6) !important;
+}
+
+/* Editor viewport: white paper frame → dark violet frame */
+#main-app #canvas-viewport {
+  border-color: rgba(30, 15, 60, 0.9) !important;
+  background-color: rgba(10, 5, 20, 0.6) !important;
+}
+
+/* Paper container (A4 preview) stays white to look like actual paper */
+#main-app #paper-container {
+  background-color: #f5f0ff !important;
+  box-shadow: 0 20px 60px rgba(124, 92, 255, 0.4),
+              0 0 0 1px rgba(190, 170, 255, 0.3) !important;
+}
+#main-app #paper-container .text-slate-400,
+#main-app #paper-container .text-slate-500 {
+  color: #6b5b8a !important;
+}
+#main-app #paper-container .bg-white,
+#main-app #paper-container .bg-slate-50\/40 {
+  background-color: #ffffff !important;
+  backdrop-filter: none;
+}
+
+/* Range slider accent */
+#main-app input[type="range"] {
+  accent-color: #a78bfa !important;
+}
+#main-app input[type="number"],
+#main-app input[type="color"] {
+  background-color: rgba(10, 5, 20, 0.6) !important;
+  color: rgba(255, 255, 255, 0.9) !important;
+  border-color: rgba(124, 92, 255, 0.3) !important;
+}
+
+/* Error boxes stay red but tuned for dark bg */
+#main-app .bg-rose-50 {
+  background-color: rgba(80, 20, 40, 0.55) !important;
+}
+#main-app .text-rose-700,
+#main-app .text-rose-600 {
+  color: #ff9ab0 !important;
+}
+#main-app .border-rose-200 {
+  border-color: rgba(255, 100, 130, 0.4) !important;
+}
+
+/* Green success dot */
+#main-app .bg-green-500 {
+  background-color: #4ade80 !important;
+  box-shadow: 0 0 10px rgba(74, 222, 128, 0.6) !important;
+}
+
+/* Hover states */
+#main-app .hover\:bg-slate-50:hover,
+#main-app .hover\:bg-slate-100:hover,
+#main-app .hover\:bg-slate-50\/30:hover,
+#main-app .hover\:bg-slate-50\/50:hover,
+#main-app .hover\:bg-slate-50\/60:hover {
+  background-color: rgba(124, 92, 255, 0.12) !important;
+}
+#main-app .hover\:bg-orange-100:hover {
+  background-color: rgba(124, 92, 255, 0.22) !important;
+}
+#main-app .hover\:bg-white:hover {
+  background-color: rgba(30, 15, 60, 0.75) !important;
+}
+#main-app .hover\:border-orange-300:hover,
+#main-app .hover\:border-orange-500:hover {
+  border-color: #beaaff !important;
+}
+#main-app .hover\:text-orange-600:hover,
+#main-app .hover\:text-orange-700:hover {
+  color: #beaaff !important;
+}
+
+/* Original crop-box helper */
+.crop-box-outline {
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.6);
+}
+
+/* Fade-in helper referenced by components */
+@keyframes gobyy-fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+#main-app .animate-fadeIn {
+  animation: gobyy-fadeIn 0.4s ease-out;
+}
