@@ -650,7 +650,7 @@ export default function App() {
           </div>
         )}
         {activeStep === 'processing' && (
-          <ProcessingPage done={processingDone} error={processError} onRetry={handleReset} />
+          <ProcessingPage mode={procMode} target={procTarget} done={processingDone} error={processError} onRetry={handleReset} />
         )}
 
 
