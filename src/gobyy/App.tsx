@@ -263,10 +263,6 @@ function ProcessingPage({
         </p>
 
         <div className="relative mt-10">
-          <div className="flex justify-between text-[11px] font-mono font-bold text-white/60 mb-2">
-            <span className="tracking-wider">PROGRESS</span>
-            <span className="text-[#beaaff] tabular-nums">{pct}%</span>
-          </div>
           <div className="w-full h-2.5 rounded-full bg-white/5 overflow-hidden border border-[rgba(190,170,255,0.18)]">
             <div
               className="h-full bg-gradient-to-r from-[#7c5cff] via-[#a78bfa] to-[#beaaff] shadow-[0_0_14px_rgba(167,139,250,0.9)]"
