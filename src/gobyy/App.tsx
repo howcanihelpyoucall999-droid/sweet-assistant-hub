@@ -174,7 +174,7 @@ function ProcessingPage({
 }) {
   const messages = mode === 'init' ? INIT_MESSAGES : PROCESS_MESSAGES;
   // Expected duration used to shape the smooth baseline curve.
-  const expectedMs = mode === 'init' ? 18000 : 9000;
+  const expectedMs = mode === 'init' ? 14000 : 5000;
 
   const [progress, setProgress] = useState(0);
   const [msgIdx, setMsgIdx] = useState(0);
