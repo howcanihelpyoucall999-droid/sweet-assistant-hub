@@ -167,51 +167,74 @@ function ProcessingPage({
   onRetry,
 }: {
   mode: 'init' | 'process';
-  target: number; // 0..0.98 — where the bar should be heading right now
+  target: number; // 0..1 — a soft ceiling hint (bytes/stages). Bar can move without it.
   done: boolean;
   error: string | null;
   onRetry: () => void;
 }) {
+  const messages = mode === 'init' ? INIT_MESSAGES : PROCESS_MESSAGES;
+  // Expected duration used to shape the smooth baseline curve.
+  const expectedMs = mode === 'init' ? 18000 : 9000;
+
   const [progress, setProgress] = useState(0);
+  const [msgIdx, setMsgIdx] = useState(0);
+
+  const startRef = useRef(performance.now());
   const doneRef = useRef(done);
   const targetRef = useRef(target);
   doneRef.current = done;
   targetRef.current = target;
 
-  const messages = mode === 'init' ? INIT_MESSAGES : PROCESS_MESSAGES;
+  // Reset when mode changes (init -> process)
+  useEffect(() => {
+    startRef.current = performance.now();
+    setProgress(0);
+    setMsgIdx(0);
+  }, [mode]);
 
+  // Smooth progress animation — always creeping, never frozen.
   useEffect(() => {
     let raf = 0;
-    let last = performance.now();
-    const tick = (now: number) => {
-      const dt = Math.min(64, now - last);
-      last = now;
+    const tick = () => {
+      raf = requestAnimationFrame(tick);
+      const elapsed = performance.now() - startRef.current;
+
       setProgress((prev) => {
         if (doneRef.current) {
           // Snap smoothly to 100
-          const next = prev + Math.max(0.6, (100 - prev) * 0.18) * (dt / 16);
+          const next = prev + Math.max(1.2, (100 - prev) * 0.14);
           return next >= 100 ? 100 : next;
         }
-        const tgt = Math.min(98, targetRef.current * 100);
-        // Ease toward target, but always creep forward so it never freezes.
-        const gap = tgt - prev;
-        const ease = gap > 0 ? gap * 0.045 * (dt / 16) : 0;
-        // Minimum forward drift: ~1.2% per second while below 96
-        const drift = prev < 96 ? 0.02 * (dt / 16) : 0;
-        const next = prev + Math.max(drift, ease);
-        return next > 98 ? 98 : next;
+        // Time-based baseline: reaches ~90 at expectedMs, asymptotes to 97
+        const k = elapsed / expectedMs;
+        const baseline = 97 * (1 - Math.exp(-1.8 * k));
+        // Optional ceiling raise from real signal (bytes/stages)
+        const hint = Math.min(97, Math.max(0, targetRef.current * 100));
+        const ceiling = Math.max(baseline, hint);
+        const gap = ceiling - prev;
+        const step = gap > 0.05 ? gap * 0.06 : 0.06;
+        const next = prev + step;
+        return next > 97 ? 97 : next;
       });
-      raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, []);
+  }, [expectedMs]);
+
+  // Message rotation — time-driven, monotonic, never stuck.
+  useEffect(() => {
+    const totalMsgs = messages.length;
+    const interval = Math.max(1400, Math.floor(expectedMs / (totalMsgs + 1)));
+    const id = window.setInterval(() => {
+      setMsgIdx((i) => {
+        if (doneRef.current) return totalMsgs - 1;
+        return Math.min(totalMsgs - 1, i + 1);
+      });
+    }, interval);
+    return () => clearInterval(id);
+  }, [messages, expectedMs]);
 
   const pct = Math.min(100, Math.round(progress));
-  const msgIdx = Math.min(
-    messages.length - 1,
-    Math.floor((pct / 100) * messages.length),
-  );
 
   return (
     <div className="min-h-[70vh] flex items-center justify-center px-4">
@@ -226,9 +249,15 @@ function ProcessingPage({
           </div>
         </div>
 
-        <h3 className="relative text-2xl md:text-3xl font-black tracking-tight bg-gradient-to-r from-white via-[#e6d9ff] to-[#beaaff] bg-clip-text text-transparent min-h-[2.2em]">
-          {messages[msgIdx]}
-        </h3>
+        {/* Keyed message — fades cleanly, no ghosting */}
+        <div className="relative min-h-[3.2em] flex items-center justify-center overflow-hidden">
+          <h3
+            key={msgIdx}
+            className="text-2xl md:text-3xl font-black tracking-tight text-white/95 animate-fadeIn px-4"
+          >
+            {messages[msgIdx]}
+          </h3>
+        </div>
         <p className="relative mt-3 text-sm text-white/60 font-medium">
           Sit back — this only takes a moment.
         </p>
@@ -236,12 +265,12 @@ function ProcessingPage({
         <div className="relative mt-10">
           <div className="flex justify-between text-[11px] font-mono font-bold text-white/60 mb-2">
             <span className="tracking-wider">PROGRESS</span>
-            <span className="text-[#beaaff]">{pct}%</span>
+            <span className="text-[#beaaff] tabular-nums">{pct}%</span>
           </div>
           <div className="w-full h-2.5 rounded-full bg-white/5 overflow-hidden border border-[rgba(190,170,255,0.18)]">
             <div
               className="h-full bg-gradient-to-r from-[#7c5cff] via-[#a78bfa] to-[#beaaff] shadow-[0_0_14px_rgba(167,139,250,0.9)]"
-              style={{ width: `${pct}%`, transition: 'width 180ms linear' }}
+              style={{ width: `${pct}%`, transition: 'width 220ms linear' }}
             />
           </div>
         </div>
